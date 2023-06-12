@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-def print_sample_invitation(mother, father, child, teacher, event):
+def print_sample_invitation(mother='Karen', father='John', child='Noah', teacher='Tina', event='Pizza Party'):
 
     sample_text = f'''
     Dear {mother} and {father}.
@@ -12,7 +12,8 @@ def print_sample_invitation(mother, father, child, teacher, event):
 
     print(sample_text)
 
-    
-print_sample_invitation('Denise', 'Randy', 'Jared', 'Dr. Reid', 'Class session 1')
+print_sample_invitation()
+
+
 
 
