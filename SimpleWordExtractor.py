@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
+import click
 import requests
 import re
 from bs4 import BeautifulSoup
-
-PAGE_URL = '178.62.18.68:32080'
 
 def get_html_of(url):
     resp = requests.get(url)
@@ -15,24 +14,41 @@ def get_html_of(url):
 
     return resp.content.decode()
 
-html = get_html_of(PAGE_URL)
-soup = BeautifulSoup(html, 'html.parser')
-raw_text = soup.get_text()
-all_words = re.findall(r'\w+', raw_text)
+def count_occurrences_in(word_list, min_length):
+    word_count = {}
 
-word_count = {}
+    for word in word_list:
+        if len(word) < min_length:
+            continue
+        if word not in word_count:
+            word_count[word] = 1
+        else:
+            current_count = word_count.get(word)
+            word_count[word] = current_count + 1
+    return word_count
 
-for word in all_words:
-    if word not in word_count:
-        word_count[word] = 1
-    else:
-        current_count = word_count.get(word)
-        word_count[word] = current_count + 1
+def get_all_words_from(url):
+    html = get_html_of(url)
+    soup = BeautifulSoup(html, 'html.parser')
+    raw_text = soup.get_text()
+    return re.findall(r'\w+', raw_text)
 
-top_words = sorted(word_count.items(), key=lambda item: item[1], reverse=True)
+def get_top_words_from(all_words, min_length):
+    occurrences = count_occurrences_in(all_words, min_length)
+    return sorted(occurrences.items(), key=lambda item: item[1], reverse=True)
 
-for i in range(10):
-    print(top_words[i][0])
+@click.command()
+@click.option('--url', '-u', prompt='Web URL', help='URL of webpage to extract from.')
+@click.option('--length', '-l', default=0, help='Minimum word length (default: 0, no limit).')
+def main(url, length, filename):
+    the_words = get_all_words_from(url)
+    top_words = get_top_words_from(the_words, length)
+
+    for i in range(10):
+         print(top_words[i][0])
+
+if __name__ == '__main__':
+    main()
 
 
 
